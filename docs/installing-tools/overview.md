@@ -8,4 +8,4 @@ _TODO: 內容待補。_
 
 ---
 
-[← What is Helm?](../helm-intro/overview.md) · [↑ Contents](../../README.md) · [Helm Fundamentals →](../helm-fundamentals/overview.md)
+[← Helm Architecture](../helm-intro/architecture.md) · [↑ Contents](../../README.md) · [Helm Fundamentals →](../helm-fundamentals/overview.md)

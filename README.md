@@ -6,7 +6,7 @@
 
 > _Learn Helm by installing real charts and building your own, one concept at a time._
 
-![Helm](https://img.shields.io/badge/Helm-3-0F1689?logo=helm&logoColor=white)
+![Helm](https://img.shields.io/badge/Helm-4-0F1689?logo=helm&logoColor=white)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-1.30%2B-326CE5?logo=kubernetes&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
@@ -26,7 +26,10 @@ _TODO_ — 建議先完成 [Kubernetes in Practice](https://github.com/r97221004
 
 **Part 1 — What is Helm?**
 
-- [**What is Helm?**](docs/helm-intro/overview.md) — _TODO_
+- [**The Role of Helm in Kubernetes**](docs/helm-intro/role-of-helm.md) — Kubernetes has no idea which objects form one app; Helm packages them as charts and tracks installs as releases.
+- [**Benefits of Using Helm**](docs/helm-intro/benefits.md) — one chart for every environment, one-command upgrades and rollbacks, ready-made packages, and what it costs.
+- [**Helm vs. Kustomize**](docs/helm-intro/helm-vs-kustomize.md) — templates and values vs. base and patches: the same change both ways, and when to use which.
+- [**Helm Architecture**](docs/helm-intro/architecture.md) — a client-only binary, the kubeconfig it shares with `kubectl`, chart repositories, and releases stored as Secrets.
 
 **Part 2 — Installing Tools**
 
