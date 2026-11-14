@@ -238,8 +238,6 @@ They aren't exclusive. Common combinations:
 - **Kustomize on top of a chart.** When a public chart doesn't expose the one setting you need, patch its output with Kustomize instead of forking the chart. There are three ways: render with `helm template` and patch the result; let Kustomize pull the chart through its `helmCharts` field (requires `kustomize build --enable-helm`); or keep the Helm release and pass `helm install --post-renderer`, which runs the rendered YAML through Kustomize (or any other program) before applying it. In Helm 4 the post-renderer must be packaged as a Helm plugin; Helm 3 accepted any executable.
 - **GitOps tools support both.** Argo CD and Flux recognize a Helm chart or a `kustomization.yaml` in a Git folder and render either one, so a team can use Helm for third-party software and Kustomize for its own apps in the same repo.
 
-> This tutorial is about Helm, so from here on everything uses charts. For a hands-on Kustomize walkthrough, see [Kubernetes in Practice → Kustomize](https://github.com/r97221004/k8s-tutorial/blob/master/docs/packaging/kustomize.md).
-
 ---
 
 [← Benefits and Limitations of Helm](benefits.md) · [↑ Contents](../../README.md) · [Helm Architecture →](architecture.md)
