@@ -29,7 +29,7 @@ _TODO_ — 建議先完成 [Kubernetes in Practice](https://github.com/r97221004
 - [**The Role of Helm in Kubernetes**](docs/helm-intro/role-of-helm.md) — Kubernetes has no idea which objects form one app; Helm packages them as charts and tracks installs as releases.
 - [**Benefits and Limitations of Helm**](docs/helm-intro/benefits.md) — seven benefits and five limitations: simpler deployments, consistent environments and rollbacks, weighed against templating complexity, chart security, in-cluster state and risky upgrades.
 - [**Helm vs. Kustomize**](docs/helm-intro/helm-vs-kustomize.md) — templates and values vs. base and patches: the same change both ways, and when to use which.
-- [**Helm Architecture**](docs/helm-intro/architecture.md) — a client-only binary, the kubeconfig it shares with `kubectl`, chart repositories, and releases stored as Secrets.
+- [**Helm Architecture**](docs/helm-intro/architecture.md) — how developers, chart repositories and CI/CD fit together; the chart files and common commands; and what `helm install` does, from rendering to the release Secret.
 
 **Part 2 — Installing Tools**
 
