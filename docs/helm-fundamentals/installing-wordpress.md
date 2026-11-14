@@ -80,7 +80,9 @@ Your WordPress site can be accessed through the following DNS name from within y
 …
 ```
 
-Everything after `NOTES:` comes from the chart's `templates/NOTES.txt`: instructions the chart author wrote for you, printed after every install and upgrade. Bitnami's even starts with a warning about the [image changes](bitnami-changes.md). You can show them again any time with `helm get notes my-wordpress`.
+Everything after `NOTES:` comes from the chart's `templates/NOTES.txt`: instructions the chart author wrote for you, printed after every install and upgrade. You can show them again any time with `helm get notes my-wordpress`.
+
+> **About that ⚠ WARNING.** Since August 2025, Bitnami's free images come only with the `latest` tag ([announcement](https://github.com/bitnami/containers/issues/83267)), and this chart uses them. Fine for a lab, but you can't pin the WordPress version: a later install, or a Pod scheduled on another node, may pull a newer image, and `helm rollback` restores the YAML, not the old image. Older chart versions that point at versioned tags no longer pull at all; Bitnami's temporary fix is to switch their images to the `bitnamilegacy` repository, which gets no updates.
 
 > **`deployed` doesn't mean ready.** By default `helm install` returns as soon as the objects are accepted by the API server, not when the Pods are running. Add `--wait` to make Helm wait until they're ready (up to `--timeout`, 5 minutes by default).
 

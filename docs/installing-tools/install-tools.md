@@ -68,4 +68,4 @@ If any of these fail, see the Ansible tutorial's [Troubleshooting](https://githu
 
 ---
 
-[← Helm Architecture](../helm-intro/architecture.md) · [↑ Contents](../../README.md) · [Changes to Bitnami Charts and Images →](../helm-fundamentals/bitnami-changes.md)
+[← Helm Architecture](../helm-intro/architecture.md) · [↑ Contents](../../README.md) · [Exploring Artifact Hub →](../helm-fundamentals/artifact-hub.md)

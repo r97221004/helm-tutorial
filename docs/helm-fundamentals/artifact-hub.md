@@ -60,9 +60,10 @@ When several charts install the same software, prefer one that is:
 2. **Recently updated.** Look at the date of the latest version. A chart untouched for a year is probably out of date.
 3. **Documented.** A README that explains values, and a values schema, save you from reading templates.
 4. **Clean on the security report.** Fewer known vulnerabilities in its images.
+5. **Pinnable.** Its images have versioned tags you can lock, not just `latest`. Sources can also change their terms: in 2025 Bitnami limited its free images to `latest`. The WordPress chart in this part uses them anyway, since it's the standard example and pinning doesn't matter in a lab; [Installing the WordPress Chart](installing-wordpress.md) explains the trade-off.
 
 Then read what it creates before installing it, as [Benefits and Limitations](../helm-intro/benefits.md) recommends: render it with `helm template`, or browse the **Templates** tab.
 
 ---
 
-[← Changes to Bitnami Charts and Images](bitnami-changes.md) · [↑ Contents](../../README.md) · [Managing Helm Repositories →](managing-repositories.md)
+[← Installing Tools](../installing-tools/install-tools.md) · [↑ Contents](../../README.md) · [Managing Helm Repositories →](managing-repositories.md)
