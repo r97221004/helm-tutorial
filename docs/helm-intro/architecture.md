@@ -242,4 +242,4 @@ That's all `helm list` and `helm history` read. Consequences worth knowing:
 
 ---
 
-[← Helm vs. Kustomize](helm-vs-kustomize.md) · [↑ Contents](../../README.md) · [Installing Tools →](../installing-tools/overview.md)
+[← Helm vs. Kustomize](helm-vs-kustomize.md) · [↑ Contents](../../README.md) · [Installing Tools →](../installing-tools/install-tools.md)

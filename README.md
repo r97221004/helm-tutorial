@@ -33,7 +33,7 @@ _TODO_ — 建議先完成 [Kubernetes in Practice](https://github.com/r97221004
 
 **Part 2 — Installing Tools**
 
-- [**Installing Tools**](docs/installing-tools/overview.md) — _TODO_
+- [**Installing Tools**](docs/installing-tools/install-tools.md) — a single-node kubeadm cluster plus Helm and k9s, via the companion Ansible tutorial.
 
 **Part 3 — Helm Fundamentals**
 
