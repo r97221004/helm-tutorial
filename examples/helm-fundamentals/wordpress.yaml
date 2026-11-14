@@ -1,0 +1,26 @@
+# Values for the bitnami/wordpress chart used in Part 3.
+# Install:  helm install my-wordpress bitnami/wordpress --version 34.2.7 -f wordpress.yaml
+#
+# Lab only: these passwords are in plain text. For real installs, keep them in a
+# Kubernetes Secret and use existingSecret / mariadb.auth.existingSecret instead.
+
+wordpressUsername: admin
+wordpressPassword: change-me-123
+wordpressEmail: admin@example.com
+wordpressBlogName: My Helm Blog
+
+service:
+  type: NodePort
+  nodePorts:
+    http: 30080
+
+persistence:
+  size: 2Gi
+
+mariadb:
+  auth:
+    rootPassword: root-change-me
+    password: db-change-me
+  primary:
+    persistence:
+      size: 2Gi

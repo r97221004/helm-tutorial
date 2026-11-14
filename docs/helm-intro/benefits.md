@@ -138,7 +138,7 @@ Helm adds its own concepts on top of Kubernetes: chart structure, values precede
     {{- include "app-chart.labels" . | nindent 4 }}
 ```
 
-The `-` trims whitespace, `.` is the current scope, and `nindent 4` fixes the YAML indentation; get one wrong and the output is broken YAML. Errors also show up late, only when the chart is rendered. `helm lint` and `helm template` catch most of them before you install, and [Helm Fundamentals](../helm-fundamentals/overview.md) teaches you to read charts like this.
+The `-` trims whitespace, `.` is the current scope, and `nindent 4` fixes the YAML indentation; get one wrong and the output is broken YAML. Errors also show up late, only when the chart is rendered. `helm lint` and `helm template` catch most of them before you install, and [Part 4](../creating-charts/overview.md) teaches you to read and write charts like this.
 
 ### ⚠️ Over-templating
 

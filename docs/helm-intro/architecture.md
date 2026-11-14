@@ -132,7 +132,7 @@ The commands split into two groups: working with **charts** (the package, on the
 | `helm push` / `helm pull` | upload a package to an OCI registry / download one |
 | `helm repo add` / `helm repo update` | register a classic HTTP repository / refresh its index |
 
-On the release side are the lifecycle commands from [Benefits](benefits.md#-simpler-deployments): `install`, `upgrade`, `rollback`, `uninstall`, plus `list`, `history`, `status` and `test` to inspect them. [Helm Fundamentals](../helm-fundamentals/overview.md) uses each of these in practice.
+On the release side are the lifecycle commands from [Benefits](benefits.md#-simpler-deployments): `install`, `upgrade`, `rollback`, `uninstall`, plus `list`, `history`, `status` and `test` to inspect them. [Helm Fundamentals](../helm-fundamentals/managing-repositories.md) puts the repository and release commands into practice; [Part 4](../creating-charts/overview.md) covers creating and packaging charts.
 
 ### What happens on `helm install`
 

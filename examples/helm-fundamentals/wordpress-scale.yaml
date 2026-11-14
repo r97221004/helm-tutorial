@@ -1,0 +1,5 @@
+# Extra values layered on top of wordpress.yaml: more Pods and more resources.
+# Upgrade:  helm upgrade my-wordpress bitnami/wordpress --version 34.2.7 -f wordpress.yaml -f wordpress-scale.yaml
+
+replicaCount: 2
+resourcesPreset: small

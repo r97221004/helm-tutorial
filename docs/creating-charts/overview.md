@@ -8,4 +8,4 @@ _TODO: 內容待補。_
 
 ---
 
-[← Helm Fundamentals](../helm-fundamentals/overview.md) · [↑ Contents](../../README.md)
+[← Setting Values via Files](../helm-fundamentals/values-files.md) · [↑ Contents](../../README.md)

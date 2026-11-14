@@ -37,7 +37,15 @@ _TODO_ — 建議先完成 [Kubernetes in Practice](https://github.com/r97221004
 
 **Part 3 — Helm Fundamentals**
 
-- [**Helm Fundamentals**](docs/helm-fundamentals/overview.md) — _TODO_
+- [**Changes to Bitnami Charts and Images**](docs/helm-fundamentals/bitnami-changes.md) — since August 2025 free Bitnami images come only as `latest`: what that means for the WordPress chart, and the legacy workaround for older installs.
+- [**Exploring Artifact Hub**](docs/helm-fundamentals/artifact-hub.md) — find charts, read a chart's page, and choose between charts for the same software.
+- [**Managing Helm Repositories**](docs/helm-fundamentals/managing-repositories.md) — `helm repo add`, `update`, `search` and `pull`, the local index cache, and OCI registries.
+- [**Installing the WordPress Chart**](docs/helm-fundamentals/installing-wordpress.md) — a default StorageClass, one `helm install`, and what it created. *Lab:* open the site through a port-forward.
+- [**Exploring the Chart's Configuration**](docs/helm-fundamentals/exploring-configuration.md) — `helm show` for a chart's defaults, `helm get` for what a release used.
+- [**Uninstalling a Release**](docs/helm-fundamentals/uninstalling.md) — `helm uninstall`, `--keep-history`, and what uninstall leaves behind.
+- [**Cleaning Up Kubernetes Resources**](docs/helm-fundamentals/cleaning-up.md) — the zombie volume problem, and a cleanup checklist. *Lab:* reinstall onto a leftover PVC and watch it fail.
+- [**Setting Values via the CLI**](docs/helm-fundamentals/values-cli.md) — `--set` syntax, the type trap, and which values survive an upgrade.
+- [**Setting Values via Files**](docs/helm-fundamentals/values-files.md) — values files with `-f`, layering, precedence, and keeping them in Git.
 
 **Part 4 — Creating Our Own Helm Charts**
 
