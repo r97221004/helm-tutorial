@@ -82,7 +82,7 @@ Your WordPress site can be accessed through the following DNS name from within y
 
 Everything after `NOTES:` comes from the chart's `templates/NOTES.txt`: instructions the chart author wrote for you, printed after every install and upgrade. You can show them again any time with `helm get notes my-wordpress`.
 
-> **About that ⚠ WARNING.** Since August 2025, Bitnami's free images come only with the `latest` tag ([announcement](https://github.com/bitnami/containers/issues/83267)), and this chart uses them. Fine for a lab, but you can't pin the WordPress version: a later install, or a Pod scheduled on another node, may pull a newer image, and `helm rollback` restores the YAML, not the old image. Older chart versions that point at versioned tags no longer pull at all; Bitnami's temporary fix is to switch their images to the `bitnamilegacy` repository, which gets no updates.
+About the **⚠ WARNING**: since August 2025, Bitnami's free images come only with the `latest` tag ([announcement](https://github.com/bitnami/containers/issues/83267)), so you can't pin the WordPress version, and `helm rollback` restores the YAML but not the old image. Fine for a lab, not for production. (Older chart versions with versioned tags no longer pull at all; Bitnami's stopgap is the unmaintained `bitnamilegacy` repository.)
 
 > **`deployed` doesn't mean ready.** By default `helm install` returns as soon as the objects are accepted by the API server, not when the Pods are running. Add `--wait` to make Helm wait until they're ready (up to `--timeout`, 5 minutes by default).
 
@@ -92,13 +92,22 @@ Everything after `NOTES:` comes from the chart's `templates/NOTES.txt`: instruct
 kubectl get pods -w     # or open k9s
 ```
 
-MariaDB starts first. WordPress waits for the database, then runs its first-time setup, so it can take two or three minutes, and a restart or two, before it shows `1/1 Running`:
+WordPress waits for MariaDB to be ready, then runs its first-time setup, so give it a few minutes. Both Pods should end up `1/1 Running`:
 
 ```text
 NAME                            READY   STATUS    RESTARTS   AGE
-my-wordpress-5d8c7f9b6d-x2k4p   1/1     Running   0          2m40s
-my-wordpress-mariadb-0          1/1     Running   0          2m40s
+my-wordpress-5d8c7f9b6d-x2k4p   1/1     Running   0          3m
+my-wordpress-mariadb-0          1/1     Running   0          3m
 ```
+
+If they don't get there:
+
+| You see | Likely cause | Check |
+|---------|--------------|-------|
+| Pods and PVCs still `Pending` after a minute or two | no default StorageClass. (A few seconds of `Pending` right after install is normal: local-path creates the volume only once a Pod is scheduled.) | `kubectl get pvc`, `kubectl get storageclass`; see [storage](#before-you-start-storage) |
+| `ImagePullBackOff` / `ErrImagePull` | the VM can't reach Docker Hub, or hit its pull rate limit | `kubectl describe pod <name>`, Events at the bottom |
+| WordPress `Running` but `0/1` for a long time | still initializing, or can't reach the database | `kubectl logs deploy/my-wordpress -f` |
+| `CrashLoopBackOff` | usually a database password mismatch | `kubectl logs deploy/my-wordpress`; see [the zombie volume problem](cleaning-up.md#the-zombie-volume-problem) |
 
 ### What one command created
 
@@ -133,16 +142,14 @@ my-wordpress  wordpress  1         …        deployed  wordpress-34.2.7   7.1.4
 The chart creates a `LoadBalancer` Service by default. Its `EXTERNAL-IP` stays `<pending>`: a bare kubeadm cluster has no load balancer, and on k3s the built-in ServiceLB can't take ports 80 and 443 because Traefik already holds them. The simplest way in, on either cluster, is a port-forward on the VM:
 
 ```bash
+# from your laptop: log in to the VM, forwarding your port 8080 to the VM's port 8080
+ssh -L 8080:localhost:8080 <YOUR_USER>@<YOUR_VM_IP>
+
+# then, in that same SSH session: forward the VM's port 8080 to the Service
 kubectl port-forward svc/my-wordpress 8080:80
 ```
 
-That listens on the VM's `localhost:8080` and keeps running until you press Ctrl+C. To reach it from your laptop's browser, open an SSH tunnel in a second terminal:
-
-```bash
-ssh -L 8080:localhost:8080 <YOUR_USER>@<YOUR_VM_IP>
-```
-
-Now open <http://localhost:8080> for the blog and <http://localhost:8080/wp-admin> for the admin page. The username is `user`; the chart generated a random password and stored it in a Secret:
+The port-forward keeps running until you press Ctrl+C. While it runs, your laptop's `localhost:8080` reaches the Service through the SSH tunnel. Open <http://localhost:8080> for the blog and <http://localhost:8080/wp-admin> for the admin page. The username is `user`; the chart generated a random password and stored it in a Secret:
 
 ```bash
 kubectl get secret my-wordpress -o jsonpath='{.data.wordpress-password}' | base64 -d; echo
