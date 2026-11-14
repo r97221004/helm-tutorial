@@ -15,25 +15,24 @@ Search for `wordpress` on [artifacthub.io](https://artifacthub.io/) and filter *
 | Filter | What it tells you |
 |--------|-------------------|
 | **Official** | published by the owner of the software itself, e.g. the Prometheus chart from the Prometheus community |
-| **Verified publisher** | the repository's owner has proved they control it |
+| **Verified publishers** | the repository's owner has proved they control it |
 | **CNCF** | the chart belongs to a CNCF project |
 | **Signed** | the chart is cryptographically signed, so you can verify it wasn't tampered with |
 
-For WordPress, pick **`bitnami/wordpress`** from the Bitnami repository: the chart this part uses.
+Try **Official** first. For WordPress it returns nothing: the WordPress project doesn't publish a Helm chart. So fall back to a well-known **verified publisher**: **`bitnami/wordpress`**, verified and signed, is the chart this part uses.
 
 You can run the same search from the terminal. `helm search hub` queries Artifact Hub directly, no repository setup needed:
 
 ```bash
-helm search hub wordpress --list-repo-url
+helm search hub wordpress --list-repo-url                            # dozens of rows
+helm search hub wordpress --list-repo-url | grep charts.bitnami.com  # just Bitnami's
 ```
 
 ```text
-URL                                         CHART VERSION  APP VERSION  DESCRIPTION                     REPO URL
-https://artifacthub.io/packages/helm/...    34.2.7         7.1.4        WordPress is the world's ...    https://charts.bitnami.com/bitnami
-…
+https://artifacthub.io/packages/helm/bitnami/wo...  34.2.7  7.1.4  WordPress is the world's most popular blogging ...  https://charts.bitnami.com/bitnami
 ```
 
-Results come back in Artifact Hub's ranking, so the Bitnami chart may not be first; look for the row whose **REPO URL** is `https://charts.bitnami.com/bitnami`. That column, added by `--list-repo-url`, is what you actually need: the repository to add before installing.
+The last column, added by `--list-repo-url`, is what you actually need: the repository to add before installing.
 
 ### Reading a chart's page
 
@@ -56,11 +55,11 @@ The **Default values** view is the one you'll use most. For WordPress it shows s
 
 When several charts install the same software, prefer one that is:
 
-1. **Official, or from a well-known publisher.** It's maintained by people who know the software.
+1. **Official, or from a well-known verified publisher.** It's maintained by people who know the software.
 2. **Recently updated.** Look at the date of the latest version. A chart untouched for a year is probably out of date.
 3. **Documented.** A README that explains values, and a values schema, save you from reading templates.
 4. **Clean on the security report.** Fewer known vulnerabilities in its images.
-5. **Pinnable.** Its images have versioned tags you can lock, not just `latest`. Sources can also change their terms: in 2025 Bitnami limited its free images to `latest`. The WordPress chart in this part uses them anyway, since it's the standard example and pinning doesn't matter in a lab; [Installing the WordPress Chart](installing-wordpress.md) explains the trade-off.
+5. **Pinnable.** Its images have versioned tags you can lock, not just `latest`. Bitnami's free images are `latest`-only since 2025; fine for this lab, as [Installing the WordPress Chart](installing-wordpress.md) explains, not for production.
 
 Then read what it creates before installing it, as [Benefits and Limitations](../helm-intro/benefits.md) recommends: render it with `helm template`, or browse the **Templates** tab.
 
