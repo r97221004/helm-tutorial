@@ -251,31 +251,30 @@ spec:
     spec:
       containers:
         - name: web
-          image: "nginx:{{ .Values.web.tag }}"
+          image: "myorg/web:{{ .Values.web.tag | default .Chart.AppVersion }}"
 ```
 
 ```yaml
 # values.yaml: the defaults
 web:
   replicaCount: 1
-  tag: "1.27"
+  tag: ""            # empty: use the chart's appVersion (1.4.2)
 ```
 
 Notice two things:
 
 - **The label is written as one expression, not typed by hand.** With release `my-app`, the selector and the Pod labels both become `app: my-app-web`. Install it as `shop` and both become `app: shop-web`. As long as every file uses that same expression, they stay in sync, which removes the selector-typo problem from above. Real charts go one step further and define labels once in a shared helper that every template includes, so there's a single place to get them right; you'll write one in [Part 4](../creating-charts/overview.md).
-- **What differs per install comes from values.** The same chart serves every environment, with a small values file for each:
+- **What differs per install comes from values.** The image tag defaults to the chart's `appVersion`, so installing chart 2.1.0 deploys app 1.4.2 unless you override `web.tag`. The same chart serves every environment, with a small values file for each:
 
   ```yaml
   # values-prod.yaml: only what differs from the defaults
   web:
     replicaCount: 3
-    tag: "1.28"
   ```
 
   ```bash
-  helm install my-app ./app-chart -n dev                          # defaults: 1 replica, nginx:1.27
-  helm install my-app ./app-chart -n prod -f values-prod.yaml     # 3 replicas, nginx:1.28
+  helm install my-app ./app-chart -n dev                          # defaults: 1 replica, myorg/web:1.4.2
+  helm install my-app ./app-chart -n prod -f values-prod.yaml     # 3 replicas, myorg/web:1.4.2
   ```
 
 That's the split to remember: **the chart describes the shape of the app; values describe one particular install of it.**
@@ -293,4 +292,4 @@ Helm doesn't replace `kubectl` or Kubernetes; it sits on top of them and talks t
 
 ---
 
-[↑ Contents](../../README.md) · [Benefits of Using Helm →](benefits.md)
+[↑ Contents](../../README.md) · [Benefits and Limitations of Helm →](benefits.md)

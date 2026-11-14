@@ -136,4 +136,4 @@ They aren't exclusive. Common combinations:
 
 ---
 
-[← Benefits of Using Helm](benefits.md) · [↑ Contents](../../README.md) · [Helm Architecture →](architecture.md)
+[← Benefits and Limitations of Helm](benefits.md) · [↑ Contents](../../README.md) · [Helm Architecture →](architecture.md)
