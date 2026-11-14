@@ -1,5 +1,9 @@
 # Helm in Practice
 
+<p align="center">
+  <img src="docs/images/helm-logo.svg" width="120" alt="Helm logo" />
+</p>
+
 > _Learn Helm by installing real charts and building your own, one concept at a time._
 
 ![Helm](https://img.shields.io/badge/Helm-3-0F1689?logo=helm&logoColor=white)
