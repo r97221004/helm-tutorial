@@ -23,10 +23,10 @@ config:
     .edgeLabel, .edgeLabel p, .edgeLabel span { color: #FFFFFF !important; }
 ---
 flowchart LR
-    subgraph remote["🌐 chart repository · charts.bitnami.com/bitnami"]
+    subgraph remote["🌐 chart repository · e.g. charts.example.com"]
         direction TB
         idx["📇 index.yaml<br/>every chart · every version · download URL"]
-        tgz["📦 wordpress-34.2.7.tgz<br/>mariadb-28.1.6.tgz · …"]
+        tgz["📦 chart packages<br/>app-chart-2.1.0.tgz · …<br/>at the URL the index lists"]
     end
 
     subgraph local["💻 your machine"]
@@ -52,7 +52,7 @@ flowchart LR
     style local fill:#000000,stroke:#94A3B8,color:#FFFFFF,fillStyle:solid
 ```
 
-A classic Helm repository is just files on a web server: an `index.yaml` listing every chart and version, and the chart packages it points at. Helm keeps two things locally:
+A classic Helm repository is just files on a web server: an `index.yaml` listing every chart, every version and its download URL, and the chart packages at those URLs. The packages usually sit next to the index, but the URL can point anywhere; Bitnami's point at its OCI registry, as [the end of this page](#oci-registries-no-repo-add-needed) shows. Helm keeps two things locally:
 
 - **`repositories.yaml`**: the short name you chose (`bitnami`) and its URL.
 - **The cached index**: a copy of the repository's `index.yaml`. `helm search repo` reads this copy, never the network.
@@ -130,6 +130,20 @@ helm pull bitnami/wordpress --version 34.2.7            # wordpress-34.2.7.tgz
 helm pull bitnami/wordpress --version 34.2.7 --untar    # a wordpress/ folder
 ```
 
+### Private repositories
+
+Public repositories need no credentials. A private one, such as your team's internal charts, does:
+
+```bash
+# classic HTTP repository: credentials are saved with the repository entry
+helm repo add internal https://charts.example.com --username <USER> --password-stdin
+
+# OCI registry: log in once per registry, like docker login
+echo "$TOKEN" | helm registry login registry.example.com --username <USER> --password-stdin
+```
+
+`--password-stdin` keeps the password out of your shell history. Note that `helm repo add` stores the credentials in plain text in `repositories.yaml`.
+
 ### Remove a repository
 
 > Don't run this now: the next pages install from `bitnami`. If you do, add it back with `helm repo add`.
@@ -138,7 +152,7 @@ helm pull bitnami/wordpress --version 34.2.7 --untar    # a wordpress/ folder
 helm repo remove bitnami
 ```
 
-This only removes the name and cached index from your machine. Releases already installed from that repository keep running; Helm stored everything it needs in the release.
+This only removes the name and cached index from your machine. Releases already installed from that repository keep running, and `helm rollback` still works, since each revision stores its own copy of the chart. But `helm upgrade my-wordpress bitnami/wordpress` fails until you add the repository back, because Helm can no longer resolve `bitnami/`.
 
 ### OCI registries: no `repo add` needed
 
