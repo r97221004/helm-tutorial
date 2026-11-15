@@ -8,13 +8,27 @@ Removing an app installed with plain YAML means finding and deleting each object
 
 ### Preview first
 
-On anything that matters, check what a command will do before running it:
+On anything that matters, check what a command will do before running it. Uninstall deletes exactly what's in the release's manifest, so list that:
 
 ```bash
-helm uninstall my-wordpress --dry-run
+helm get manifest my-wordpress | grep '^kind:' | sort | uniq -c
 ```
 
-It prints the release that would be removed and deletes nothing.
+```text
+      1 kind: ConfigMap
+      1 kind: Deployment
+      2 kind: NetworkPolicy
+      1 kind: PersistentVolumeClaim
+      2 kind: PodDisruptionBudget
+      2 kind: Secret
+      3 kind: Service
+      2 kind: ServiceAccount
+      1 kind: StatefulSet
+```
+
+With chart 34.2.7 that's 15 objects, and they're exactly what will be deleted. Note the single PersistentVolumeClaim, though the release has two volumes; that's [the catch below](#what-uninstall-does-not-delete).
+
+`helm uninstall` also has a `--dry-run` flag, but it's no preview: it prints `release "my-wordpress" uninstalled`, word for word what a real uninstall prints, and lists nothing. It deletes nothing either, so don't panic if you try it; `helm list` still shows the release.
 
 ### Uninstall
 
@@ -26,14 +40,14 @@ helm uninstall my-wordpress
 release "my-wordpress" uninstalled
 ```
 
-Helm reads the release's stored manifest (the same YAML `helm get manifest` showed), deletes each object in it, then deletes the release's Secrets. Check the result:
+Helm reads the release's stored manifest (the same YAML `helm get manifest` showed), deletes each object in it, then deletes Helm's own release records (Secrets named `sh.helm.release.v1.my-wordpress.v*`, which were never in the manifest). Check the result:
 
 ```bash
 helm list                  # empty: the release is gone
 kubectl get pods           # Pods terminating, then gone
 ```
 
-Like `helm install`, it returns once the API server accepts the deletions, not when every Pod has stopped. Add `--wait` to block until they're gone.
+Like `helm install`, it returns once the API server accepts the deletions, not when every Pod has stopped. Add `--wait` to block until they're gone (with `--cascade foreground` too, if some objects have finalizers and you need them fully deleted before the command returns).
 
 ### Or: keep the history
 
@@ -67,7 +81,7 @@ Helm deletes only the objects in the release's manifest. Some objects related to
 | **Anything created at runtime** | e.g. Jobs, Secrets or ConfigMaps created by an operator or by the app itself. |
 | **The namespace** | Helm didn't create it (unless you used `--create-namespace`, and even then it's not deleted). |
 
-WordPress hits the first row. Look:
+Keeping StatefulSet PVCs is a default, not a rule: a StatefulSet can set `persistentVolumeClaimRetentionPolicy.whenDeleted: Delete` to remove them with it. The Bitnami MariaDB chart doesn't, so WordPress hits the first row. Look:
 
 ```bash
 kubectl get pvc
