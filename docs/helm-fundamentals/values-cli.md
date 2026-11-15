@@ -44,7 +44,7 @@ wordpressPassword: change-me-123
 wordpressUsername: admin
 ```
 
-The site is now on port 30080 of the VM itself, no port-forward needed: `ssh -L 8080:localhost:30080 <YOUR_USER>@<YOUR_VM_IP>`, then open <http://localhost:8080> and log in as `admin`.
+The site is now on port 30080 of the VM itself, no port-forward needed: `ssh -L 9090:localhost:30080 <YOUR_USER>@<YOUR_VM_IP>`, then open <http://localhost:9090> and log in as `admin`.
 
 > **Passwords on the command line end up in your shell history**, and `helm get values` shows them to anyone who can read the release. Fine for a lab. For real installs, put them in a Kubernetes Secret and point the chart at it (`existingSecret`, `mariadb.auth.existingSecret`).
 

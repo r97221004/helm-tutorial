@@ -153,14 +153,69 @@ The chart creates a `LoadBalancer` Service by default. Its `EXTERNAL-IP` stays `
 If you're already logged in to the VM, log out first, then reconnect with the tunnel:
 
 ```bash
-# from your laptop: log in to the VM, forwarding your port 8080 to the VM's port 8080
-ssh -L 8080:localhost:8080 <YOUR_USER>@<YOUR_VM_IP>
+# from your laptop: log in to the VM, forwarding your port 9090 to the VM's port 9090
+ssh -L 9090:localhost:9090 <YOUR_USER>@<YOUR_VM_IP>
 
-# then, in that same SSH session: forward the VM's port 8080 to the Service
-kubectl port-forward svc/my-wordpress 8080:80
+# then, in that same SSH session: forward the VM's port 9090 to a WordPress Pod
+kubectl port-forward svc/my-wordpress 9090:80
 ```
 
-The port-forward keeps running until you press Ctrl+C. While it runs, your laptop's `localhost:8080` reaches the Service through the SSH tunnel. Open <http://localhost:8080> for the blog and <http://localhost:8080/wp-admin> for the admin page. The username is `user`; the chart generated a random password and stored it in a Secret:
+The port-forward keeps running until you press Ctrl+C. While it runs, your laptop's `localhost:9090` reaches WordPress through the SSH tunnel. (Any free local port works; 9090 just keeps it apart from the container's own 8080 below.)
+
+```mermaid
+---
+config:
+  look: handDrawn
+  theme: default
+  themeVariables:
+    fontFamily: '"Comic Sans MS", "Comic Sans", "Segoe Print", "Bradley Hand", cursive'
+    clusterBkg: '#FAFAFA'
+    clusterBorder: '#94A3B8'
+    lineColor: '#94A3B8'
+    edgeLabelBackground: '#475569'
+  themeCSS: |
+    .edgeLabel, .edgeLabel p, .edgeLabel span { color: #FFFFFF !important; }
+---
+flowchart LR
+    subgraph laptop["💻 your laptop"]
+        browser["🌐 browser<br/>localhost:9090"]
+    end
+
+    subgraph vm["🖥️ VM · single-node cluster"]
+        direction LR
+        kpf["⎈ kubectl port-forward<br/>listens on localhost:9090"]
+        np["🚪 nodePort<br/>VM IP:32439"]
+        svc["🔀 Service my-wordpress<br/>ClusterIP · port 80"]
+        pod["📦 WordPress Pod<br/>targetPort http = 8080"]
+    end
+
+    browser ==>|"ssh -L 9090:localhost:9090"| kpf
+    kpf ==>|"via the API server and kubelet<br/>skips the Service"| pod
+    np -.->|"kube-proxy"| svc
+    svc -.->|"to a ready Pod"| pod
+
+    classDef ctrl fill:#0F172A,stroke:#2563EB,stroke-width:2px,color:#FFFFFF
+    classDef eng fill:#D97706,stroke:#92400E,stroke-width:3px,color:#FFFFFF
+    classDef tgt fill:#0F172A,stroke:#16A34A,stroke-width:2px,color:#FFFFFF
+    class browser ctrl
+    class kpf eng
+    class np,svc,pod tgt
+    linkStyle 0,1 stroke:#D97706,stroke-width:3px
+    style laptop fill:#000000,stroke:#94A3B8,color:#FFFFFF,fillStyle:solid
+    style vm fill:#1E293B,stroke:#334155,color:#F1F5F9,fillStyle:solid
+```
+
+The bold path is what you just set up. `svc/my-wordpress` only tells `kubectl` which Pod to pick and which container port (`targetPort`) the Service's port 80 maps to; the traffic then goes straight to that one Pod, so if the Pod restarts, run the port-forward again. The dashed path is how the `LoadBalancer` Service itself is reached, and it involves three different ports:
+
+| Port | Value | Listens on | Used by |
+|------|-------|------------|---------|
+| `nodePort` | 32439 (random, 30000–32767) | every node's IP | clients outside the cluster |
+| `port` | 80 | the Service's ClusterIP | other Pods: `my-wordpress:80` |
+| `targetPort` | `http` = 8080 | the container | where the Service delivers traffic |
+
+A `LoadBalancer` Service always gets a nodePort too: the external load balancer is meant to forward to it. So even with `EXTERNAL-IP` stuck at `<pending>`, the site already answers on port 32439 of the VM (check yours with `kubectl get svc my-wordpress`). [Setting Values via the CLI](values-cli.md) pins it to a fixed `NodePort` and reaches it from your laptop.
+
+Open <http://localhost:9090> for the blog and <http://localhost:9090/wp-admin> for the admin page. The username is `user`; the chart generated a random password and stored it in a Secret:
 
 ```bash
 kubectl get secret my-wordpress -o jsonpath='{.data.wordpress-password}' | base64 -d; echo
