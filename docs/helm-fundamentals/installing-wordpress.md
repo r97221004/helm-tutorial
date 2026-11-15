@@ -161,6 +161,16 @@ ssh -L 9090:localhost:9090 <YOUR_USER>@<YOUR_VM_IP>
 kubectl port-forward svc/my-wordpress 9090:80
 ```
 
+`-L` reads as `<laptop port>:<host>:<port>`, and the host is resolved **on the VM**:
+
+| Part | Meaning |
+|------|---------|
+| `9090` (first) | the port your laptop listens on: what you open in the browser |
+| `localhost` | the VM itself, not your laptop |
+| `9090` (second) | the VM's port 9090, where `kubectl port-forward` listens |
+
+The traffic travels inside the SSH connection on port 22, so the cloud firewall (for example an Azure NSG) needs no extra rule. The two 9090s don't have to match: with `-L 7000:localhost:9090` you'd open `localhost:7000` instead.
+
 `kubectl` confirms where it really connects:
 
 ```text
