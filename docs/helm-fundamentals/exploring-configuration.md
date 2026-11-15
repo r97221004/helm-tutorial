@@ -89,13 +89,32 @@ The other `helm get` subcommands read the rest of what Helm stored for the relea
 | `helm get hooks my-wordpress` | hook resources, if the chart has any |
 | `helm get all my-wordpress` | all of the above in one dump |
 
-And for the current state at a glance:
+`helm get manifest` is the one to remember, for two reasons.
+
+**It shows where a value ends up.** A value's name tells you nothing about which object it lands in. Follow `wordpressUsername` into the rendered YAML:
 
 ```bash
-helm status my-wordpress
+helm get manifest my-wordpress | grep -A1 WORDPRESS_USERNAME
 ```
 
-`helm get manifest` is the one to remember. It shows what Helm *thinks* it deployed, which is what you compare against the cluster when something looks wrong (see [drift](../helm-intro/benefits.md)).
+```yaml
+            - name: WORDPRESS_USERNAME
+              value: "user"
+```
+
+It became an environment variable on the WordPress Deployment, not a ConfigMap entry (the password, being secret, goes into the Secret `my-wordpress` instead). Every chart decides this differently, so when you want to know what a value really does, read the manifest:
+
+```text
+value (wordpressUsername)  →  template  →  object (Deployment env WORDPRESS_USERNAME)
+```
+
+**It's what you compare against the cluster.** The manifest is what Helm *thinks* it deployed. If someone changed an object with `kubectl edit`, the two no longer match ([drift](../helm-intro/benefits.md#%EF%B8%8F-state-is-stored-in-the-cluster)). `kubectl diff` shows the difference:
+
+```bash
+helm get manifest my-wordpress | kubectl diff -f -
+```
+
+No output means the cluster still matches what Helm deployed.
 
 ### Preview before you change
 
