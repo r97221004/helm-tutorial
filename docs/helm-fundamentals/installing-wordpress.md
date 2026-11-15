@@ -82,14 +82,14 @@ Your WordPress site can be accessed through the following DNS name from within y
 
 Everything after `NOTES:` comes from the chart's `templates/NOTES.txt`: instructions the chart author wrote for you, printed after every install and upgrade. You can show them again any time with `helm get notes my-wordpress`.
 
-About the **⚠ WARNING**: since August 2025, Bitnami's free images come only with the `latest` tag ([announcement](https://github.com/bitnami/containers/issues/83267)), so you can't pin the WordPress version, and `helm rollback` restores the YAML but not the old image. Fine for a lab, not for production. (Older chart versions with versioned tags no longer pull at all; Bitnami's stopgap is the unmaintained `bitnamilegacy` repository.)
+> **About the ⚠ WARNING:** you can ignore it for this lab. Since August 2025, Bitnami's free images come only with the `latest` tag ([announcement](https://github.com/bitnami/containers/issues/83267)), so you can't pin the WordPress version, and `helm rollback` restores the YAML but not the old image. Fine for a lab, not for production.
 
-> **`deployed` doesn't mean ready.** By default `helm install` returns as soon as the objects are accepted by the API server, not when the Pods are running. Add `--wait` to make Helm wait until they're ready (up to `--timeout`, 5 minutes by default).
+> **`deployed` doesn't mean ready.** By default `helm install` returns as soon as the objects are accepted by the API server, not when the Pods are running. Add `--wait` to make Helm wait until they're ready (up to `--timeout`, 5 minutes by default). Don't run the install again now: the release name `my-wordpress` is taken. Keep the flag for the next time you install something.
 
 ### Watch it start
 
 ```bash
-kubectl get pods -w     # or open k9s
+kubectl get pods -w     # Ctrl+C to stop watching; or open k9s
 ```
 
 WordPress waits for MariaDB to be ready, then runs its first-time setup, so give it a few minutes. Both Pods should end up `1/1 Running`:
@@ -126,7 +126,7 @@ kubectl get deploy,sts,svc,pvc,secret,configmap -l app.kubernetes.io/instance=my
 | Secret | `my-wordpress`, `my-wordpress-mariadb` (generated passwords) | both |
 | ConfigMap, NetworkPolicy, PodDisruptionBudget, ServiceAccount | … | both |
 
-And Helm sees all of it as one release:
+That's the cluster's view. Helm has its own, and it sees all of it as one release:
 
 ```bash
 helm list
@@ -137,9 +137,20 @@ NAME          NAMESPACE  REVISION  UPDATED  STATUS    CHART              APP VER
 my-wordpress  wordpress  1         …        deployed  wordpress-34.2.7   7.1.4
 ```
 
+`helm status my-wordpress` shows the same summary `helm install` printed, NOTES included. To see exactly what Helm sent to the cluster, read the rendered manifest:
+
+```bash
+helm get manifest my-wordpress                                   # every object, as YAML
+helm get manifest my-wordpress | grep '^kind:' | sort | uniq -c  # count them by kind
+```
+
+Compare it with the `kubectl` table above: one PVC is missing from the manifest, `data-my-wordpress-mariadb-0`. Helm didn't create that one. The StatefulSet's `volumeClaimTemplates` did, which is why [`helm uninstall` leaves it behind](uninstalling.md).
+
 ### Open the site
 
 The chart creates a `LoadBalancer` Service by default. Its `EXTERNAL-IP` stays `<pending>`: a bare kubeadm cluster has no load balancer, and on k3s the built-in ServiceLB can't take ports 80 and 443 because Traefik already holds them. The simplest way in, on either cluster, is a port-forward on the VM:
+
+If you're already logged in to the VM, log out first, then reconnect with the tunnel:
 
 ```bash
 # from your laptop: log in to the VM, forwarding your port 8080 to the VM's port 8080
