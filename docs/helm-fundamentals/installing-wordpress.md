@@ -157,7 +157,15 @@ If you're already logged in to the VM, log out first, then reconnect with the tu
 ssh -L 9090:localhost:9090 <YOUR_USER>@<YOUR_VM_IP>
 
 # then, in that same SSH session: forward the VM's port 9090 to a WordPress Pod
+# (80 is the Service's port; kubectl looks up its targetPort and connects to the Pod's 8080)
 kubectl port-forward svc/my-wordpress 9090:80
+```
+
+`kubectl` confirms where it really connects:
+
+```text
+Forwarding from 127.0.0.1:9090 -> 8080
+Forwarding from [::1]:9090 -> 8080
 ```
 
 The port-forward keeps running until you press Ctrl+C. While it runs, your laptop's `localhost:9090` reaches WordPress through the SSH tunnel. (Any free local port works; 9090 just keeps it apart from the container's own 8080 below.)
@@ -190,9 +198,10 @@ flowchart LR
     end
 
     browser ==>|"ssh -L 9090:localhost:9090"| kpf
-    kpf ==>|"via the API server and kubelet<br/>skips the Service"| pod
+    kpf ==>|"9090 → 8080<br/>via the API server and kubelet"| pod
     np -.->|"kube-proxy"| svc
     svc -.->|"to a ready Pod"| pod
+    kpf -.-o|"looks up port 80<br/>→ targetPort 8080<br/>(lookup only, no traffic)"| svc
 
     classDef ctrl fill:#0F172A,stroke:#2563EB,stroke-width:2px,color:#FFFFFF
     classDef eng fill:#D97706,stroke:#92400E,stroke-width:3px,color:#FFFFFF
@@ -201,11 +210,12 @@ flowchart LR
     class kpf eng
     class np,svc,pod tgt
     linkStyle 0,1 stroke:#D97706,stroke-width:3px
+    linkStyle 4 stroke:#D97706,stroke-width:1px,stroke-dasharray:3 3
     style laptop fill:#000000,stroke:#94A3B8,color:#FFFFFF,fillStyle:solid
     style vm fill:#1E293B,stroke:#334155,color:#F1F5F9,fillStyle:solid
 ```
 
-The bold path is what you just set up. `svc/my-wordpress` only tells `kubectl` which Pod to pick and which container port (`targetPort`) the Service's port 80 maps to; the traffic then goes straight to that one Pod, so if the Pod restarts, run the port-forward again. The dashed path is how the `LoadBalancer` Service itself is reached, and it involves three different ports:
+The bold orange path is what you just set up, and the thin orange line is the lookup behind it: `svc/my-wordpress` only tells `kubectl` which Pod to pick and which container port (`targetPort`) the Service's port 80 maps to; the traffic then goes straight to that one Pod, so if the Pod restarts, run the port-forward again. The gray dashed path is how the `LoadBalancer` Service itself is reached, and it involves three different ports:
 
 | Port | Value | Listens on | Used by |
 |------|-------|------------|---------|
